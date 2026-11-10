@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}ระบบจัดการหลังบ้าน (Admin Dashboard) | NEXUS TECH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="flex items-center justify-between pb-6 border-b border-slate-800 mb-8">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+                    BACKOFFICE CONTROL PANEL
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+                <i data-lucide="shield" class="w-7 h-7 text-purple-400"></i>
+                <span>ระบบจัดการหลังบ้าน & รายการสั่งซื้อ</span>
+            </h1>
+        </div>
+        <div class="text-xs text-slate-400">
+            TechHub Admin v2.0
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">รายการสินค้าทั้งหมด</p>
+                    <h3 class="text-3xl font-black text-white mt-1">{{ products|length }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-400 flex items-center justify-center">
+                    <i data-lucide="package" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">ฮาร์ดแวร์ และ ซอฟต์แวร์พร้อมจำหน่าย</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">คำสั่งซื้อในระบบ</p>
+                    <h3 class="text-3xl font-black text-white mt-1">{{ orders|length }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-purple-600/10 text-purple-400 flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">ออเดอร์จากระบบจำหน่ายและจัดสเปคคอม</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">สถานะเซิร์ฟเวอร์ & ฐานข้อมูล</p>
+                    <h3 class="text-lg font-black text-emerald-400 mt-2 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active & Healthy
+                    </h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-600/10 text-emerald-400 flex items-center justify-center">
+                    <i data-lucide="server" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">SQLite DB: techhub.db</p>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="mb-12">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <i data-lucide="clock" class="w-5 h-5 text-blue-400"></i>
+            <span>คำสั่งซื้อล่าสุด (Recent Orders)</span>
+        </h3>
+
+        {% if orders|length == 0 %}
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-xs">
+            ยังไม่มีคำสั่งซื้อในระบบ (คุณสามารถทดลองสั่งซื้อหรือจัดสเปคคอมผ่านหน้าเว็บได้)
+        </div>
+        {% else %}
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-800/60 border-b border-slate-800 text-slate-400">
+                        <th class="py-3 px-4">เลขที่ออเดอร์</th>
+                        <th class="py-3 px-4">ลูกค้า</th>
+                        <th class="py-3 px-4">ช่องทางชำระ</th>
+                        <th class="py-3 px-4">จำนวนสินค้า</th>
+                        <th class="py-3 px-4 text-right">ยอดเงิน</th>
+                        <th class="py-3 px-4 text-center">สถานะ</th>
+                        <th class="py-3 px-4 text-center">ดูรายละเอียด</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                    {% for o in orders %}
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-blue-400">{{ o.order_code }}</td>
+                        <td class="py-3 px-4">
+                            <p class="font-medium text-white">{{ o.customer_name }}</p>
+                            <p class="text-[11px] text-slate-500">{{ o.customer_phone }}</p>
+                        </td>
+                        <td class="py-3 px-4 capitalize text-slate-300">{{ o.payment_method }}</td>
+                        <td class="py-3 px-4 text-slate-300">{{ o.order_items|length }} รายการ</td>
+                        <td class="py-3 px-4 text-right font-bold text-white">฿{{ o.total_amount|currency }}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40">
+                                {{ o.status }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <a href="{{ url_for('order_success', order_code=o.order_code) }}" class="text-blue-400 hover:text-blue-300 font-semibold underline">
+                                ดูใบเสร็จ
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Products Inventory Section -->
+    <div>
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+            <span>คลังสินค้าและสต็อก (Inventory Overview)</span>
+        </h3>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto shadow-xl">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="bg-slate-800/60 border-b border-slate-800 text-slate-400">
+                        <th class="py-3 px-4 w-12 text-center">ID</th>
+                        <th class="py-3 px-4">ชื่อสินค้า</th>
+                        <th class="py-3 px-4">หมวดหมู่</th>
+                        <th class="py-3 px-4">ประเภท</th>
+                        <th class="py-3 px-4">แบรนด์</th>
+                        <th class="py-3 px-4 text-right">ราคา</th>
+                        <th class="py-3 px-4 text-center">สต็อก</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                    {% for p in products %}
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="py-2.5 px-4 text-center text-slate-500 font-mono">{{ p.id }}</td>
+                        <td class="py-2.5 px-4 font-medium text-white max-w-xs truncate" title="{{ p.name }}">
+                            <a href="{{ url_for('product_detail', product_id=p.id) }}" class="hover:text-blue-400">
+                                {{ p.name }}
+                            </a>
+                        </td>
+                        <td class="py-2.5 px-4 text-slate-400 uppercase text-[11px]">{{ p.category }}</td>
+                        <td class="py-2.5 px-4">
+                            {% if p.type == 'hardware' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-blue-950 text-blue-300 border border-blue-800/40 font-semibold">ฮาร์ดแวร์</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-purple-950 text-purple-300 border border-purple-800/40 font-semibold">ซอฟต์แวร์</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-2.5 px-4 text-slate-300">{{ p.brand }}</td>
+                        <td class="py-2.5 px-4 text-right font-bold text-white">฿{{ p.price|currency }}</td>
+                        <td class="py-2.5 px-4 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-200">
+                                {{ p.stock }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

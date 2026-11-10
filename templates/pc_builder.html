@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}จัดสเปคคอมพิวเตอร์ (PC Builder) พร้อมเช็คความเข้ากันได้ & คำนวณวัตต์ไฟ | NEXUS TECH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Page Header & Badges -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+        <div>
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                    AI COMPATIBILITY ENGINE
+                </span>
+                <span class="text-xs text-slate-400">ระบบตรวจสอบความเข้ากันได้แบบเรียลไทม์</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
+                <i data-lucide="hammer" class="w-7 h-7 text-blue-500"></i>
+                <span>ระบบจัดสเปคคอมพิวเตอร์ (PC Builder)</span>
+            </h1>
+            <p class="text-sm text-slate-400 mt-1">เลือกชิ้นส่วนที่คุณต้องการ ระบบจะคำนวณราคา ความเข้ากันได้ของฮาร์ดแวร์ และแนะนำขนาด Power Supply ให้อัตโนมัติ</p>
+        </div>
+
+        <!-- Quick Top Action Buttons -->
+        <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="clearAllComponents()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5" title="ล้างชิ้นส่วนทั้งหมดเพื่อเริ่มใหม่">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span>ล้างสเปค</span>
+            </button>
+            <button onclick="copyBuildSpecs()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5" title="คัดลอกสเปคคอมไปแชร์">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                <span>แชร์สเปค</span>
+            </button>
+            <button onclick="printQuotation()" class="px-3.5 py-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white text-xs font-semibold rounded-xl border border-indigo-500/40 transition flex items-center gap-1.5" title="พิมพ์ใบเสนอราคาอย่างเป็นทางการ">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>พิมพ์ใบเสนอราคา</span>
+            </button>
+            <button onclick="addAllToCart()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center gap-1.5">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                <span>เพิ่มทั้งหมดลงตะกร้า</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Presets Section (สเปคสำเร็จรูปยอดนิยม) -->
+    <div class="mt-8 mb-10">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+                <h3 class="text-base font-bold text-white">เลือกจากสเปคสำเร็จรูปยอดนิยม (Popular Presets)</h3>
+            </div>
+            <span class="text-xs text-slate-400">คลิกเพื่อโหลดชิ้นส่วนทั้งหมดเข้าสู่ตัวจำลองและปรับแต่งได้ทันที</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="preset-builds-list">
+            <!-- Rendered by pc-builder.js -->
+        </div>
+    </div>
+
+    <!-- Main Builder Grid (Left: Slots, Right: Sticky Summary & Compatibility) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Component Slots (8 cols) -->
+        <div class="lg:col-span-8 space-y-4" id="builder-slots">
+            <!-- Dynamic Slots Rendered by pc-builder.js -->
+            <div class="text-center py-16 text-slate-500">
+                <i data-lucide="loader" class="w-8 h-8 mx-auto animate-spin mb-2"></i>
+                <p class="text-sm">กำลังโหลดข้อมูลชิ้นส่วนคอมพิวเตอร์...</p>
+            </div>
+        </div>
+
+        <!-- Right: Sticky Summary, Wattage Meter & Compatibility Box (4 cols) -->
+        <div class="lg:col-span-4 space-y-5 sticky top-28">
+            
+            <!-- Real-time Summary Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <span class="text-xs uppercase tracking-wider font-semibold text-slate-400">สรุปการจัดสเปคคอม</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/40" id="summary-part-count">0 / 10 ชิ้นส่วน</span>
+                </div>
+
+                <!-- Price Breakdown -->
+                <div class="py-5">
+                    <p class="text-xs text-slate-400 mb-1">ราคารวมโดยประมาณ</p>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-white" id="summary-total-price">฿0</span>
+                        <span class="text-xs text-slate-400 font-normal">(รวม VAT 7% แล้ว)</span>
+                    </div>
+                    <div class="mt-3 flex items-center gap-2 p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 text-xs text-slate-300">
+                        <i data-lucide="credit-card" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+                        <span>ผ่อน 0% 10 เดือน เริ่มต้นเพียง <strong class="text-emerald-400" id="summary-monthly-price">฿0</strong> / เดือน</span>
+                    </div>
+                </div>
+
+                <!-- Wattage & PSU Calculator -->
+                <div class="pt-4 border-t border-slate-800">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+                            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                            <span>ประมาณการใช้ไฟ (Estimated Wattage)</span>
+                        </div>
+                        <span class="text-xs font-bold text-amber-400" id="summary-wattage">0 W</span>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="w-full bg-slate-800 rounded-full h-2 mb-2 overflow-hidden border border-slate-700">
+                        <div id="wattage-progress-bar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400">
+                        <span>ขนาดพาวเวอร์ซัพพลายที่แนะนำ:</span>
+                        <strong class="text-white" id="summary-rec-wattage">0 W</strong>
+                    </div>
+                </div>
+
+                <!-- Compatibility Box -->
+                <div class="mt-5 pt-4 border-t border-slate-800" id="compatibility-alerts">
+                    <!-- Dynamic Alert Rendered by checkCompatibility() -->
+                </div>
+
+                <!-- Primary Action Buttons -->
+                <div class="mt-6 space-y-2.5">
+                    <button onclick="addAllToCart()" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm rounded-2xl shadow-xl shadow-blue-600/30 transition flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        <span>สั่งซื้อสเปคนี้ (เพิ่มลงตะกร้า)</span>
+                    </button>
+                    <button onclick="printQuotation()" class="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+                        <span>ออกใบเสนอราคา (Quotation)</span>
+                    </button>
+                </div>
+
+                <!-- Additional Guarantee Points -->
+                <div class="mt-5 pt-4 border-t border-slate-800 space-y-2 text-[11px] text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <span>บริการประกอบคอมพิวเตอร์และจัดสายฟรี</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <span>ลง Windows และทดสอบเสถียรภาพก่อนจัดส่ง</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <span>รับประกันสินค้าศูนย์ไทยแท้ทุกชิ้น พร้อมเคลมด่วน</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Component Selection Modal -->
+<div id="select-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        
+        <!-- Modal Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2" id="modal-cat-title">
+                เลือกชิ้นส่วน
+            </h3>
+            <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Modal Search & Filter -->
+        <div class="p-4 border-b border-slate-800/80 bg-slate-900/50">
+            <div class="relative">
+                <input type="text" id="modal-search-input" oninput="filterModalItems()" placeholder="ค้นหาตามชื่อรุ่น หรือ แบรนด์..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
+            </div>
+        </div>
+
+        <!-- Modal Items List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-2.5" id="modal-items-list">
+            <!-- Dynamic items rendered by pc-builder.js -->
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/pc-builder.js') }}"></script>
+{% endblock %}

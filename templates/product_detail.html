@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} | NEXUS TECH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-slate-400 mb-6">
+        <a href="{{ url_for('index') }}" class="hover:text-blue-400">หน้าแรก</a>
+        <span>/</span>
+        <a href="{{ url_for('products', type=product.type) }}" class="hover:text-blue-400 capitalize">{{ product.type }}</a>
+        <span>/</span>
+        <a href="{{ url_for('products', category=product.category) }}" class="hover:text-blue-400">{{ product.category }}</a>
+        <span>/</span>
+        <span class="text-white truncate max-w-xs">{{ product.name }}</span>
+    </div>
+
+    <!-- Product Main Info (Grid) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        
+        <!-- Left: Image Gallery (5 cols) -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-3xl p-6">
+            <div class="relative rounded-2xl overflow-hidden bg-slate-950 aspect-square border border-slate-800">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/600?text=Hardware'">
+                {% if product.original_price and product.original_price > product.price %}
+                <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-lg shadow">
+                    ลด {{ (100 - (product.price / product.original_price * 100))|round|int }}%
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Feature Badges -->
+            <div class="mt-6 grid grid-cols-3 gap-3 text-center text-xs text-slate-400">
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                    <i data-lucide="shield-check" class="w-5 h-5 mx-auto text-blue-400 mb-1"></i>
+                    <span>แท้ศูนย์ 100%</span>
+                </div>
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                    <i data-lucide="truck" class="w-5 h-5 mx-auto text-emerald-400 mb-1"></i>
+                    <span>ส่งด่วน 1-2 วัน</span>
+                </div>
+                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60">
+                    <i data-lucide="award" class="w-5 h-5 mx-auto text-amber-400 mb-1"></i>
+                    <span>เคลมง่าย รวดเร็ว</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Details & Purchase Card (7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xs uppercase tracking-wider font-semibold text-blue-400 bg-blue-950/60 px-2.5 py-0.5 rounded border border-blue-800/40">
+                        {{ product.brand }}
+                    </span>
+                    <span class="text-xs text-slate-400">รหัสสินค้า: TH-P{{ "%04d"|format(product.id) }}</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white leading-snug">{{ product.name }}</h1>
+                
+                <div class="flex items-center gap-3 mt-3">
+                    <div class="flex items-center gap-1 text-amber-400 text-sm">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <span class="font-bold">{{ product.rating }}</span>
+                    </div>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-xs text-slate-400">การรับประกัน: <strong class="text-slate-200">{{ product.warranty }}</strong></span>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i> มีสินค้าพร้อมส่ง ({{ product.stock }} ชิ้น)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Price Box -->
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+                <div class="flex items-baseline gap-3">
+                    <span class="text-3xl sm:text-4xl font-black text-white">{{ product.price|currency }}</span>
+                    {% if product.original_price and product.original_price > product.price %}
+                    <span class="text-base text-slate-500 line-through">{{ product.original_price|currency }}</span>
+                    {% endif %}
+                    <span class="text-xs text-slate-400">(รวมภาษีมูลค่าเพิ่ม 7% แล้ว)</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">ผ่อนชำระ 0% สูงสุด 10 เดือน เริ่มต้นเพียง <strong class="text-blue-400">฿{{ (product.price / 10)|round|int }}</strong> / เดือน</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <h3 class="text-sm font-bold text-white mb-2">รายละเอียดสินค้า</h3>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{ product.description }}</p>
+            </div>
+
+            <!-- Specifications Table -->
+            {% if product.specs %}
+            <div>
+                <h3 class="text-sm font-bold text-white mb-3">คุณสมบัติเฉพาะ (Technical Specifications)</h3>
+                <div class="rounded-2xl border border-slate-800 overflow-hidden bg-slate-900">
+                    <table class="w-full text-xs text-left">
+                        <tbody>
+                            {% for key, val in product.specs.items() %}
+                            <tr class="border-b border-slate-800 last:border-0 hover:bg-slate-800/40">
+                                <td class="py-2.5 px-4 font-semibold text-slate-400 w-1/3 capitalize">{{ key.replace('_', ' ') }}</td>
+                                <td class="py-2.5 px-4 text-white font-medium">{{ val }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quantity & Actions -->
+            <div class="pt-4 border-t border-slate-800 flex items-center gap-4">
+                <div class="flex items-center border border-slate-700 bg-slate-800 rounded-xl overflow-hidden">
+                    <button type="button" onclick="adjustQty(-1)" class="px-3 py-3 text-slate-300 hover:bg-slate-700">-</button>
+                    <input type="number" id="detail-qty" value="1" min="1" max="{{ product.stock }}" class="w-12 bg-transparent text-center text-sm font-bold text-white focus:outline-none">
+                    <button type="button" onclick="adjustQty(1)" class="px-3 py-3 text-slate-300 hover:bg-slate-700">+</button>
+                </div>
+
+                <button onclick="addToCartFromDetail()" class="flex-1 py-3.5 px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-xl shadow-blue-600/30 transition flex items-center justify-center gap-2">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span>เพิ่มลงในตะกร้า</span>
+                </button>
+
+                {% if product.type == 'hardware' and product.category in ['cpu', 'motherboard', 'ram', 'gpu', 'storage', 'psu', 'case', 'cooler'] %}
+                <a href="{{ url_for('pc_builder') }}" class="py-3.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5" title="นำไปใส่ในตัวจัดสเปคคอม">
+                    <i data-lucide="hammer" class="w-4 h-4 text-blue-400"></i>
+                    <span class="hidden sm:inline">จัดสเปคด้วยชิ้นนี้</span>
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+    <div class="mt-20 pt-10 border-t border-slate-800">
+        <h3 class="text-xl font-black text-white mb-6">สินค้าในหมวดหมู่เดียวกันที่คุณอาจสนใจ</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {% for item in related %}
+            <div class="bg-slate-900 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-4 transition group flex flex-col justify-between">
+                <div>
+                    <div class="relative rounded-xl overflow-hidden bg-slate-950 aspect-video mb-3 border border-slate-800">
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition" onerror="this.src='https://via.placeholder.com/300?text=Hardware'">
+                    </div>
+                    <h4 class="text-xs font-semibold text-white group-hover:text-blue-400 line-clamp-2">
+                        <a href="{{ url_for('product_detail', product_id=item.id) }}">{{ item.name }}</a>
+                    </h4>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-sm font-bold text-white">{{ item.price|currency }}</span>
+                    <button onclick='Cart.addItem({{ item|tojson }})' class="p-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition">
+                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function adjustQty(delta) {
+        const input = document.getElementById('detail-qty');
+        let current = parseInt(input.value) || 1;
+        current = Math.max(1, current + delta);
+        input.value = current;
+    }
+
+    function addToCartFromDetail() {
+        const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+        const product = {{ product|tojson }};
+        Cart.addItem(product, qty);
+    }
+</script>
+{% endblock %}

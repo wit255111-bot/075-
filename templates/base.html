@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NEXUS TECH | ศูนย์รวมฮาร์ดแวร์ ซอฟต์แวร์ และระบบจัดสเปคคอมพิวเตอร์{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 text-white text-xs py-2 px-4 text-center font-medium shadow-md">
+        <span class="inline-flex items-center gap-2">
+            <span class="bg-white/20 px-2 py-0.5 rounded-full font-bold">PROMOTION</span>
+            🔥 ประกอบคอมกับเราวันนี้ ฟรีค่าแรงจัดสาย พร้อมรับฟรี Digital Key Anti-Virus 1 ปี เมื่อสั่งซื้อครบ 20,000.-
+        </span>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur border-b border-slate-800 transition">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 gap-4">
+                
+                <!-- Logo -->
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3 flex-shrink-0 group">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">
+                        <i data-lucide="cpu" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xl font-black tracking-wider text-white">NEXUS</span>
+                            <span class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">TECH</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 tracking-wider">HARDWARE & SOFTWARE EXPERT</p>
+                    </div>
+                </a>
+
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-lg relative">
+                    <form action="{{ url_for('products') }}" method="GET" class="w-full">
+                        <div class="relative">
+                            <input type="text" name="q" id="global-search-input" value="{{ search_query or '' }}" placeholder="ค้นหาซีพียู, การ์ดจอ, แรม, Windows 11, Office..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                            <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-3"></i>
+                        </div>
+                    </form>
+                    <div id="search-autocomplete-box" class="hidden absolute left-0 right-0 top-full mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 z-50"></div>
+                </div>
+
+                <!-- Navigation Links & Actions -->
+                <nav class="hidden lg:flex items-center gap-6">
+                    <a href="{{ url_for('index') }}" class="text-sm font-medium hover:text-blue-400 transition">หน้าแรก</a>
+                    
+                    <!-- Highlighted PC Builder Link -->
+                    <a href="{{ url_for('pc_builder') }}" class="relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border border-blue-500/40 text-blue-300 font-semibold text-sm hover:from-blue-600 hover:to-indigo-600 hover:text-white transition group">
+                        <i data-lucide="hammer" class="w-4 h-4 text-blue-400 group-hover:text-white group-hover:rotate-12 transition"></i>
+                        <span>จัดสเปคคอม</span>
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                    </a>
+
+                    <!-- Hardware Dropdown -->
+                    <div class="relative group py-2">
+                        <a href="{{ url_for('products', type='hardware') }}" class="text-sm font-medium hover:text-blue-400 flex items-center gap-1 transition">
+                            <span>ฮาร์ดแวร์</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-hover:rotate-180 transition"></i>
+                        </a>
+                        <div class="absolute left-0 top-full hidden group-hover:block w-56 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50">
+                            {% for cat in nav_categories_hardware %}
+                            <a href="{{ url_for('products', category=cat.id) }}" class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition">
+                                <i data-lucide="{{ cat.icon }}" class="w-4 h-4 text-blue-400"></i>
+                                <span>{{ cat.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Software Dropdown -->
+                    <div class="relative group py-2">
+                        <a href="{{ url_for('products', type='software') }}" class="text-sm font-medium hover:text-blue-400 flex items-center gap-1 transition">
+                            <span>ซอฟต์แวร์แท้</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-hover:rotate-180 transition"></i>
+                        </a>
+                        <div class="absolute left-0 top-full hidden group-hover:block w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50">
+                            {% for cat in nav_categories_software %}
+                            <a href="{{ url_for('products', category=cat.id) }}" class="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition">
+                                <i data-lucide="{{ cat.icon }}" class="w-4 h-4 text-purple-400"></i>
+                                <span>{{ cat.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('admin_page') }}" class="text-xs text-slate-400 hover:text-slate-200 transition flex items-center gap-1">
+                        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                        <span>หลังบ้าน</span>
+                    </a>
+
+                    <a href="{{ url_for('download_manual') }}" class="text-xs text-blue-400 hover:text-blue-300 font-semibold transition flex items-center gap-1 bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-800/40" title="ดาวน์โหลดคู่มือการใช้งานไฟล์ Word (.docx)">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        <span>คู่มือการใช้งาน (Word)</span>
+                    </a>
+                </nav>
+
+                <!-- Header Actions (Cart Drawer Button) -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCartDrawer()" class="relative p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition" aria-label="Cart">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        <span class="cart-badge hidden absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
+                    </button>
+                    <!-- Mobile Hamburger -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-400 hover:text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-800 bg-slate-900 px-4 py-4 space-y-3">
+            <form action="{{ url_for('products') }}" method="GET" class="w-full mb-3">
+                <input type="text" name="q" placeholder="ค้นหาสินค้า..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white">
+            </form>
+            <a href="{{ url_for('index') }}" class="block text-sm font-medium py-1.5 text-slate-200">หน้าแรก</a>
+            <a href="{{ url_for('pc_builder') }}" class="block text-sm font-semibold py-1.5 text-blue-400 flex items-center gap-2">
+                <i data-lucide="hammer" class="w-4 h-4"></i> จัดสเปคคอมพิวเตอร์ (PC Builder)
+            </a>
+            <a href="{{ url_for('products', type='hardware') }}" class="block text-sm font-medium py-1.5 text-slate-200">อุปกรณ์ฮาร์ดแวร์ทั้งหมด</a>
+            <a href="{{ url_for('products', type='software') }}" class="block text-sm font-medium py-1.5 text-slate-200">ซอฟต์แวร์ลิขสิทธิ์แท้</a>
+            <a href="{{ url_for('cart_page') }}" class="block text-sm font-medium py-1.5 text-slate-200">ดูตะกร้าสินค้า</a>
+            <a href="{{ url_for('admin_page') }}" class="block text-sm font-medium py-1.5 text-slate-400">ระบบหลังบ้าน (Admin)</a>
+        </div>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Cart Drawer (Slide-over) -->
+    <div id="cart-drawer-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleCartDrawer()"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Drawer Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-400"></i>
+                <h3 class="font-bold text-white text-base">ตะกร้าสินค้า</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Items List -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="cart-drawer-items">
+            <!-- Dynamic items rendered by cart.js -->
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-5 border-t border-slate-800 bg-slate-950/80 space-y-3">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-400">ยอดรวมทั้งสิ้น</span>
+                <span class="text-xl font-black text-blue-400" id="cart-drawer-total">฿0</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <a href="{{ url_for('cart_page') }}" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl text-center transition">ดูตะกร้าเต็ม</a>
+                <a href="{{ url_for('cart_page') }}#checkout" class="py-2.5 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl text-center shadow-lg shadow-blue-600/30 transition">ไปชำระเงิน</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Printable Quotation Placeholder (hidden on screen, visible on print) -->
+    <div id="print-container" class="print-only"></div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-20 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Trust Highlights Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12 border-b border-slate-800">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">ของแท้ 100% ประกันศูนย์</h4>
+                        <p class="text-xs text-slate-400">Synnex, Ingram, Ascenti, WTG</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center text-purple-400 flex-shrink-0">
+                        <i data-lucide="key" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">Digital Key แท้ ส่งทันที</h4>
+                        <p class="text-xs text-slate-400">Windows, Office คีย์แท้ตลอดชีพ</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <i data-lucide="wrench" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">ประกอบฟรี เก็บสายเนียน</h4>
+                        <p class="text-xs text-slate-400">พร้อมลงโปรแกรมและทดสอบเครื่อง</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-600/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                        <i data-lucide="truck" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">จัดส่งด่วนทั่วไทย</h4>
+                        <p class="text-xs text-slate-400">ห่อกันกระแทก มีประกันความเสียหาย</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 py-10">
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">บริการจัดสเปคคอม</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="{{ url_for('pc_builder') }}" class="hover:text-blue-400 transition">จำลองจัดสเปค (PC Builder)</a></li>
+                        <li><a href="{{ url_for('pc_builder') }}" class="hover:text-blue-400 transition">เช็คความเข้ากันได้ CPU & RAM</a></li>
+                        <li><a href="{{ url_for('pc_builder') }}" class="hover:text-blue-400 transition">คำนวณวัตต์ไฟ PSU</a></li>
+                        <li><a href="{{ url_for('pc_builder') }}" class="hover:text-blue-400 transition">พิมพ์ใบเสนอราคา (Quotation)</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">หมวดหมู่อุปกรณ์</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="{{ url_for('products', category='cpu') }}" class="hover:text-blue-400 transition">ซีพียู (Intel & AMD)</a></li>
+                        <li><a href="{{ url_for('products', category='gpu') }}" class="hover:text-blue-400 transition">การ์ดจอ (NVIDIA RTX & Radeon)</a></li>
+                        <li><a href="{{ url_for('products', category='ram') }}" class="hover:text-blue-400 transition">แรม (DDR4 & DDR5)</a></li>
+                        <li><a href="{{ url_for('products', category='storage') }}" class="hover:text-blue-400 transition">SSD M.2 NVMe ความเร็วสูง</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">ซอฟต์แวร์ลิขสิทธิ์</h5>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="{{ url_for('products', category='software_os') }}" class="hover:text-blue-400 transition">Windows 11 Home & Pro</a></li>
+                        <li><a href="{{ url_for('products', category='software_office') }}" class="hover:text-blue-400 transition">Microsoft Office 2024 / 365</a></li>
+                        <li><a href="{{ url_for('products', category='software_security') }}" class="hover:text-blue-400 transition">Kaspersky & Bitdefender</a></li>
+                        <li><a href="{{ url_for('products', category='software_tools') }}" class="hover:text-blue-400 transition">IDM Internet Download Manager</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">ติดต่อ NEXUS TECH</h5>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-3">ศูนย์รวมคอมพิวเตอร์และซอฟต์แวร์ครบวงจร พร้อมช่างผู้เชี่ยวชาญให้คำแนะนำตลอด 24 ชั่วโมง</p>
+                    <p class="text-xs font-bold text-white">Call Center: 02-999-8888</p>
+                    <p class="text-xs text-slate-400">Line: @nexustech | Facebook: NEXUS TECH</p>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+                <p>© 2026 NEXUS TECH CO., LTD. All rights reserved. ศูนย์รวมคอมพิวเตอร์และซอฟต์แวร์ของแท้ 100%</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Drawer Toggle Script -->
+    <script>
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const backdrop = document.getElementById('cart-drawer-backdrop');
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                Cart.renderDrawer();
+            } else {
+                drawer.classList.add('translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Live Search Autocomplete
+        const searchInput = document.getElementById('global-search-input');
+        const autoBox = document.getElementById('search-autocomplete-box');
+        if (searchInput && autoBox) {
+            let debounceTimer;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const q = e.target.value.trim();
+                if (q.length < 2) {
+                    autoBox.classList.add('hidden');
+                    return;
+                }
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}`);
+                        const items = await res.json();
+                        if (items.length > 0) {
+                            let html = '';
+                            items.forEach(it => {
+                                html += `
+                                    <a href="/product/${it.id}" class="flex items-center gap-3 p-2 hover:bg-slate-800 rounded-lg transition">
+                                        <img src="${it.image_url}" class="w-10 h-10 object-cover rounded bg-slate-900 flex-shrink-0">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-medium text-white truncate">${it.name}</p>
+                                            <p class="text-[11px] text-blue-400 font-bold">฿${it.price.toLocaleString()}</p>
+                                        </div>
+                                    </a>
+                                `;
+                            });
+                            autoBox.innerHTML = html;
+                            autoBox.classList.remove('hidden');
+                        } else {
+                            autoBox.classList.add('hidden');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }, 250);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !autoBox.contains(e.target)) {
+                    autoBox.classList.add('hidden');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

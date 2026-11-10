@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Gradient Glows */
+.tech-glow {
+    box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+}
+.tech-glow-accent {
+    box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4);
+}
+
+/* Print Stylesheet for Official Quotation */
+@media print {
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .print-only {
+        display: block !important;
+    }
+    .print-container {
+        padding: 20px !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .print-table th, .print-table td {
+        border-color: #e2e8f0 !important;
+        color: #000000 !important;
+    }
+}
+
+.print-only {
+    display: none;
+}
